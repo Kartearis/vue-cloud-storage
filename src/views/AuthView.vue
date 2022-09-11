@@ -1,54 +1,63 @@
 <template>
-  <v-container>
-    <v-card>
-      <v-card-title>Log in</v-card-title>
-      <v-card-text>
-        <v-form
-            ref="form"
-            v-model="valid"
-        >
-          <template v-if="alert">
-            <v-alert dense v-for="(error, i) of alert.errors" :key="i" :type="alert.success ? 'success' : 'warning'">
-              {{error}}
-            </v-alert>
-          </template>
-          <v-text-field
-              class="input--fix-autofill"
-              v-model="login"
-              label="Login"
-              required
-          >
-          </v-text-field>
-          <v-text-field
-              class="input--fix-autofill"
-              v-model="password"
-              label="Password"
-              :append-icon="passwordVisible ? 'mdi-eye' : 'mdi-eye-off'"
-              :type="passwordVisible ? 'text' : 'password'"
-              @click:append="passwordVisible = !passwordVisible"
-              required
-          >
-          </v-text-field>
-        </v-form>
-      </v-card-text>
+  <v-container fill-height>
+    <v-row align="center" justify="center">
+      <v-col cols="6">
+        <v-card>
+          <v-card-title>Log in</v-card-title>
+          <v-card-text>
+            <v-form
+                ref="form"
+                v-model="valid"
+            >
+              <template v-if="alert">
+                <v-alert dense v-for="(error, i) of alert.errors" :key="i" :type="alert.success ? 'success' : 'warning'">
+                  {{error}}
+                </v-alert>
+              </template>
+              <v-text-field
+                  class="input--fix-autofill"
+                  v-model="login"
+                  label="Email"
+                  :rules="validation.emailRules"
+                  required
+              >
+              </v-text-field>
+              <v-text-field
+                  class="input--fix-autofill"
+                  v-model="password"
+                  label="Password"
+                  :rules="validation.fieldRules"
+                  :append-icon="passwordVisible ? 'mdi-eye' : 'mdi-eye-off'"
+                  :type="passwordVisible ? 'text' : 'password'"
+                  @click:append="passwordVisible = !passwordVisible"
+                  required
+              >
+              </v-text-field>
+            </v-form>
+          </v-card-text>
 
-      <v-card-actions>
-        <v-btn
-          plain
-          color="primary"
-          :disabled="!valid"
-          @click="authenticate"
-        >
-          Log in
-        </v-btn>
-        <v-btn
-          plain
-          @click="navigateToRegistration"
-        >
-          Register
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+          <v-card-actions>
+            <v-btn
+                :loading="loading"
+                plain
+                color="primary"
+                :disabled="!valid"
+                @click="authenticate"
+            >
+              Log in
+            </v-btn>
+            <v-btn
+                :loading="loading"
+                ref="regBtn"
+                plain
+                @click="navigateToRegistration"
+            >
+              Register
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -66,13 +75,21 @@ export default {
     passwordVisible: false,
     login: "",
     password: "",
-    alert: null
+    alert: null,
+    loading: false,
+    validation: {
+      fieldRules: [v => !!v || 'Field is required'],
+      emailRules: [
+          v => !!v || 'E-mail is required',
+          v => /.+@.+\..+/.test(v) || 'E-mail must be valid'
+      ]
+    }
   }),
   methods: {
     authenticate: async function() {
-      console.log(this.login);
+      this.loading = true;
       const result = await this.authStore.authenticate(this.login, this.password);
-      console.log(result);
+      this.loading = false;
       if (result.success) {
         this.alert = null;
         this.$router.push('/');
@@ -88,6 +105,7 @@ export default {
 
 <!--suppress CssInvalidPseudoSelector -->
 <style scoped>
+
   /* Fix bg color on autocomplete. deep selector allows styles to be applied to inputs inside v-text-field */
   .input--fix-autofill:deep(input:-webkit-autofill),
   .input--fix-autofill:deep(input:-webkit-autofill:hover),
