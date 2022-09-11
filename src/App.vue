@@ -24,6 +24,10 @@
           width="100"
         />
       </div>
+      <nav>
+        <router-link to="/">Home</router-link> |
+        <router-link to="/about">About</router-link>
+      </nav>
 
       <v-spacer></v-spacer>
 
@@ -38,19 +42,20 @@
     </v-app-bar>
 
     <v-main>
-      <HelloWorld/>
+      <router-view/>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import  { RouterView, RouterLink } from 'vue-router';
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld,
+    RouterLink,
+    RouterView
   },
 
   data: () => ({
