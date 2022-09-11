@@ -7,6 +7,11 @@
             ref="form"
             v-model="valid"
         >
+          <template v-if="alert">
+            <v-alert dense v-for="(error, i) of alert.errors" :key="i" :type="alert.success ? 'success' : 'warning'">
+              {{error}}
+            </v-alert>
+          </template>
           <v-text-field
               class="input--fix-autofill"
               v-model="login"
@@ -48,17 +53,31 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia';
+import {useAuthStore} from "@/store/authStore";
+
 export default {
   name: "AuthView",
+  computed: {
+    ...mapStores(useAuthStore)
+  },
   data: () => ({
     valid: false,
     passwordVisible: false,
     login: "",
-    password: ""
+    password: "",
+    alert: null
   }),
   methods: {
-    authenticate: function() {
-      console.log('Register as ', this.login, this.password);
+    authenticate: async function() {
+      console.log(this.login);
+      const result = await this.authStore.authenticate(this.login, this.password);
+      console.log(result);
+      if (result.success) {
+        this.alert = null;
+        this.$router.push('/');
+      }
+      else this.alert = result;
     },
     navigateToRegistration: function() {
       this.$router.push('/register');
@@ -67,12 +86,13 @@ export default {
 }
 </script>
 
+<!--suppress CssInvalidPseudoSelector -->
 <style scoped>
-  /* Fix bg color on autocomplete */
-  .input--fix-autofill >>> input:-webkit-autofill,
-  .input--fix-autofill >>> input:-webkit-autofill:hover,
-  .input--fix-autofill >>> input:-webkit-autofill:focus,
-  .input--fix-autofill >>> input:-webkit-autofill:active {
+  /* Fix bg color on autocomplete. deep selector allows styles to be applied to inputs inside v-text-field */
+  .input--fix-autofill:deep(input:-webkit-autofill),
+  .input--fix-autofill:deep(input:-webkit-autofill:hover),
+  .input--fix-autofill:deep(input:-webkit-autofill:focus),
+  .input--fix-autofill:deep(input:-webkit-autofill:active) {
     transition: background-color 0s ease-in-out 500000s;
   }
 
