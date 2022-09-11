@@ -1,46 +1,13 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-      <nav>
-        <router-link to="/">Home</router-link> |
-        <router-link to="/about">About</router-link>
-      </nav>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
+    <top-bar>
+      <template v-slot:nav>
+        <v-app-bar-nav-icon @click="toggleDrawer"></v-app-bar-nav-icon>
+      </template>
+    </top-bar>
+    <side-bar
+      v-model="navDrawerShown"
+    ></side-bar>
     <v-main>
       <router-view/>
     </v-main>
@@ -48,18 +15,28 @@
 </template>
 
 <script>
-import  { RouterView, RouterLink } from 'vue-router';
+import  { RouterView } from 'vue-router';
+import SideBar from "@/components/SideBar";
+import TopBar from "@/components/TopBar";
 
 export default {
   name: 'App',
 
   components: {
-    RouterLink,
-    RouterView
+    TopBar,
+    RouterView,
+    SideBar
+  },
+
+  methods: {
+    toggleDrawer: function() {
+      this.navDrawerShown = !this.navDrawerShown;
+    }
   },
 
   data: () => ({
-    //
+    // Set to null so actual starting value defaults on scren size at app launch
+    navDrawerShown: null
   }),
 };
 </script>

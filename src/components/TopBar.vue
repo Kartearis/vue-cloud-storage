@@ -1,0 +1,46 @@
+<template>
+  <v-app-bar app
+             color="primary"
+             dark
+  >
+    <slot name="nav"></slot>
+    <div class="d-flex align-center">
+      <v-img
+          alt="Vue logo"
+          class="shrink mr-2"
+          contain
+          :src="require('../assets/logo.png')"
+          transition="scale-transition"
+          width="40"
+      />
+
+      <v-toolbar-title class="text-h6 text-md-h4 text-xl-h3">Vue cloud storage</v-toolbar-title>
+    </div>
+<!--    <nav>-->
+<!--      <router-link to="/">Home</router-link> |-->
+<!--      <router-link to="/about">About</router-link>-->
+<!--    </nav>-->
+
+    <v-spacer></v-spacer>
+
+<!--    <v-btn-->
+<!--        href="https://github.com/vuetifyjs/vuetify/releases/latest"-->
+<!--        target="_blank"-->
+<!--        text-->
+<!--    >-->
+<!--      <span class="mr-2">Latest Release</span>-->
+<!--      <v-icon>mdi-open-in-new</v-icon>-->
+<!--    </v-btn>-->
+  </v-app-bar>
+</template>
+
+<script>
+
+export default {
+  name: "TopBar"
+}
+</script>
+
+<style scoped>
+
+</style>
