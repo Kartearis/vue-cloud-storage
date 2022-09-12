@@ -14,6 +14,7 @@ export default {
 }
 </script>
 
+<!--suppress CssInvalidPseudoSelector -->
 <style scoped>
   .preload-list {
     padding: 10px;
