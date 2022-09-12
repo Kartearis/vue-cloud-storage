@@ -5,11 +5,17 @@
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title v-text="file.name"></v-list-item-title>
-      <v-list-item-subtitle v-text="file.updated_at.toLocaleString()"></v-list-item-subtitle>
+      <v-list-item-subtitle v-text="date"></v-list-item-subtitle>
     </v-list-item-content>
-    <v-list-item-action>
+    <v-list-item-action class="file-list-item__actions">
       <v-btn icon>
         <v-icon color="grey lighten-1">mdi-information</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon color="grey lighten-1">mdi-download</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon color="red lighten-2">mdi-delete</v-icon>
       </v-btn>
     </v-list-item-action>
   </v-list-item>
@@ -99,11 +105,20 @@ export default {
     fileType: function() {
       const fileExtension = this.type === 'folder' ? 'folder' : this.getExtension(this.file.full_name);
       return fileTypes.find((type) => type.regex.test(fileExtension));
+    },
+    date: function() {
+      if (this.file.updated_at)
+        return this.file.updated_at.toLocaleString();
+      return this.file.created_at.toLocaleString();
     }
   }
 }
 </script>
 
 <style scoped>
-
+  .file-list-item__actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
 </style>
