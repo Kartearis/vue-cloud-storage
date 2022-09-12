@@ -70,6 +70,15 @@ export default class UserRequestController {
         return this.genericPostRequest('/auth/logout', {});
     }
 
+    async getUserData() {
+        // try {
+        const response = await this.client.get('/user');
+        return response.data.data;
+        // } catch (e) {
+        //    throw e;
+        // }
+    }
+
     async genericPostRequest(url, params, errorHandler = null) {
         console.log(params);
         try {

@@ -21,10 +21,10 @@
             <v-list-item
                 v-for="(value, field) of authStore.user"
                 :key="field">
-              <v-list-item-content>
-                <v-list-item-title v-text="field">
+              <v-list-item-content v-if="value.displayable === undefined || value.displayable === true">
+                <v-list-item-title v-text="value.label">
                 </v-list-item-title>
-                <v-list-item-subtitle v-text="value">
+                <v-list-item-subtitle v-text="value.formatter !== undefined ? value.formatter(value.value) : value.value">
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
