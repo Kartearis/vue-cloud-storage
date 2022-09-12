@@ -56,7 +56,7 @@ export default class UserRequestController {
             email, password, name
         }, (e) => {
             if (e.response && e.response.status === 422) {
-                throw new Error("Email already in use");
+                throw Object.values(e.response.data.errors).flat();
             }
         });
     }

@@ -28,6 +28,24 @@ export const useAuthStore = defineStore('auth', {
             catch (e) {
                 return {success: false, errors: e};
             }
+        },
+
+        /**
+         * Register user. Returns object with results for view.
+         *
+         * @param {string} email
+         * @param {string} password
+         * @param {string} name
+         * @returns {Promise<{success: boolean, errors: string[]}>}
+         */
+        async register(email, password, name) {
+            try {
+                await this.userRequestController.register(email, password, name);
+                return {success: true, errors: ["Registered!"]};
+            }
+            catch (e) {
+                return {success: false, errors: e};
+            }
         }
     },
 })
