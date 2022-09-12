@@ -25,7 +25,14 @@ export default {
     folders: []
   }),
   methods: {
-
+    transformFile: function(file) {
+      file.expires_at = new Date(file.expires_at);
+      file.created_at = new Date(file.created_at);
+      file.updated_at = new Date(file.updated_at);
+    },
+    transformFolder: function(folder) {
+      folder.created_at = new Date(folder.created_at);
+    }
   },
   components: {
     PreloadListView,
@@ -36,6 +43,8 @@ export default {
         this.authStore.userRequestController.getFiles(),
         this.authStore.userRequestController.getFolders()
     ]);
+    this.files.forEach(this.transformFile);
+    this.folders.forEach(this.transformFolder);
     this.loaded = true;
   }
 }

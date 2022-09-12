@@ -5,7 +5,7 @@
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title v-text="file.name"></v-list-item-title>
-      <v-list-item-subtitle v-text="file.updated_at"></v-list-item-subtitle>
+      <v-list-item-subtitle v-text="file.updated_at.toLocaleString()"></v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action>
       <v-btn icon>
