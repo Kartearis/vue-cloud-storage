@@ -99,7 +99,18 @@ export default {
     navigateToRegistration: function() {
       this.$router.push('/register');
     }
-  }
+  },
+  // Ugly fix for overlap of labels and autofill (https://stackoverflow.com/a/73633659/8244160)
+  // TODO: replace with one based on animation event
+  mounted() {
+    setTimeout(() => {
+      const els = document.querySelectorAll("input:-webkit-autofill")
+      els.forEach((el) => {
+        const label = el.parentElement.querySelector("label")
+        label.classList.add("v-label--active")
+      })
+    }, 100)
+  },
 }
 </script>
 
