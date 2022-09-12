@@ -1,5 +1,8 @@
 import {defineStore} from 'pinia';
+import createPinia from "@/controllers/piniaSingleton";
 import UserRequestController from "@/controllers/userRequestController";
+
+const pinia = createPinia();
 
 /**
  * Date reviver function for json.parse
@@ -171,12 +174,10 @@ export const useAuthStore = defineStore('auth', {
     },
 });
 
-// TODO: replace with Promise.resolve
-setTimeout(() => {
-    const store = useAuthStore();
-    store.tryRememberUser();
-    store.$subscribe((
-        mutation,
-        state) => setLocalUser('vue-cloud-storage', state.user));
-}, 0);
+const store = useAuthStore(pinia);
+store.tryRememberUser();
+store.$subscribe((
+    mutation,
+    state
+) => setLocalUser('vue-cloud-storage', state.user));
 
