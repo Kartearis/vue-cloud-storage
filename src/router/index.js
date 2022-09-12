@@ -61,4 +61,14 @@ router.beforeEach((to, from, next) => {
   }
 });
 
+// Subscribe to state changes to handle empty token
+useAuthStore().$subscribe((
+    mutation,
+    state
+) => {
+    if (state.user.token.value == null)
+        if (router.currentRoute.name !== 'Auth')
+            router.push('/auth');
+});
+
 export default router

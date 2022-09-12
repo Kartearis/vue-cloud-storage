@@ -18,6 +18,25 @@ export default class UserRequestController {
         });
     }
 
+    /**
+     * Sets handler for error 401. Should be called after authStore creation.
+     *
+     * @param handler handler function. Error will be passed as parameter. Default: empty function.
+     */
+    setUnAuthHandler(handler = () => {}) {
+        this.client.interceptors.response
+            .use(
+                (response) => response,
+                (error) => {
+
+                    if (error.status === 401)
+                    {
+                        handler(error);
+                    }
+                    return error;
+                })
+    }
+
     setToken(token) {
       this.token = token;
     }

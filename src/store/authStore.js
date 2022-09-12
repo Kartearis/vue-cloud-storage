@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import createPinia from "@/controllers/piniaSingleton";
 import UserRequestController from "@/controllers/userRequestController";
+// import router from "@/router";
 
 const pinia = createPinia();
 
@@ -149,6 +150,10 @@ export const useAuthStore = defineStore('auth', {
          */
         async logout() {
             await this.userRequestController.logout();
+            this.clearAuthData();
+        },
+
+        clearAuthData() {
             this.user = getDefaultUserData();
             this.userRequestController.setToken(null);
         },
@@ -179,5 +184,9 @@ store.tryRememberUser();
 store.$subscribe((
     mutation,
     state
-) => setLocalUser('vue-cloud-storage', state.user));
+) => setLocalUser('vue-cloud-storage', state.user), {detached: true});
+
+store.userRequestController.setUnAuthHandler(() => {
+    store.clearAuthData();
+});
 
