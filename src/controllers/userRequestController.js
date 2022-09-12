@@ -1,6 +1,7 @@
 import axios from "axios";
 
 // Request controller for authorised requests
+// TODO: refactor
 export default class UserRequestController {
     client
     token
@@ -90,18 +91,38 @@ export default class UserRequestController {
     }
 
     async getUserData() {
-        // try {
         const response = await this.client.get('/user');
         return response.data.data;
-        // } catch (e) {
-        //    throw e;
-        // }
+    }
+
+    async getFiles(folderId = -1) {
+        const data = await this.genericGetRequest('/files', { folder_id: folderId });
+        return data.data;
+    }
+
+    async getFolders() {
+        const data = await this.genericGetRequest('/folders', {});
+        return data.data;
     }
 
     async genericPostRequest(url, params, errorHandler = null) {
         console.log(params);
         try {
             const response = await this.client.post(url, {}, {
+                params: params
+            });
+            return response.data;
+        } catch (e) {
+            if (errorHandler)
+                errorHandler(e);
+            else throw e;
+        }
+    }
+
+    async genericGetRequest(url, params, errorHandler = null) {
+        console.log(url, params);
+        try {
+            const response = await this.client.get(url, {
                 params: params
             });
             return response.data;
