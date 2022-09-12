@@ -3,8 +3,14 @@ import UserRequestController from "@/controllers/userRequestController";
 
 const defaultUserData = {token: null};
 
+
+// TODO: Refactor those functions to storageController class
+function buildLabel(prefix) {
+    return `${prefix}--user`;
+}
+
 function getLocalUser(prefix) {
-    const user = localStorage.getItem(`${prefix}--user`);
+    const user = localStorage.getItem(buildLabel(prefix));
     if (user)
         return JSON.parse(user);
     // To be filled with other data later
@@ -13,16 +19,17 @@ function getLocalUser(prefix) {
 
 function setLocalUser(prefix, data) {
     console.log('Save user');
-    localStorage.setItem(`${prefix}--user`, JSON.stringify(data));
+    localStorage.setItem(buildLabel(prefix), JSON.stringify(data));
 }
 
+// TODO: Should handle requests failed because of 'unauthorized'
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         userRequestController: new UserRequestController('http://markwebdev.ru/api/v1'),
         user: defaultUserData
     }),
     getters: {
-        isAuthorised: (state) => state.user?.token !== undefined && state.user.token !== null
+        isAuthorized: (state) => state.user?.token !== undefined && state.user.token !== null
     },
     actions: {
         /**
@@ -63,6 +70,17 @@ export const useAuthStore = defineStore('auth', {
         },
 
         /**
+         * Make a logout call to API. Caller expected to redirect user afterwards
+         *
+         * @returns {Promise<void>}
+         */
+        async logout() {
+            await this.userRequestController.logout();
+            this.user = defaultUserData;
+            this.userRequestController.setToken(null);
+        },
+
+        /**
          * Attempt to recover user data from localhost
          */
         tryRememberUser() {
@@ -74,6 +92,7 @@ export const useAuthStore = defineStore('auth', {
     },
 });
 
+// TODO: replace with Promise.resolve
 setTimeout(() => {
     const store = useAuthStore();
     store.tryRememberUser();
