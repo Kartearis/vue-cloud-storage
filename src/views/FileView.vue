@@ -33,7 +33,11 @@
       :on-accept="auxDialog.action"
       :accept-action-title="auxDialog.actionTitle"
       :field-label="auxDialog.fieldLabel"
+      :title="auxDialog.title"
       :placeholder="auxDialog.placeholder"
+      :readonly="auxDialog.readonly"
+      :on-show="auxDialog.onShow"
+      :autofocus="auxDialog.autofocus"
     >
     </one-field-dialog>
     <floating-controls
@@ -92,10 +96,14 @@ export default {
     creationDialogShown: false,
     auxDialog: {
       shown: false,
-      action: () => {},
+      action: undefined,
+      onShow: undefined,
+      readonly: false,
       actionTitle: undefined,
       fieldLabel: "",
-      placeholder: ""
+      title: "",
+      placeholder: "",
+      autofocus: true
     },
     currentFolder: {
       name: "/",
@@ -138,6 +146,9 @@ export default {
       this.auxDialog.actionTitle = "Rename";
       this.auxDialog.fieldLabel = "New name";
       this.auxDialog.placeholder = file.name;
+      this.auxDialog.readonly = false;
+      this.auxDialog.onShow = undefined;
+      this.auxDialog.title = "Rename file";
       this.auxDialog.action = async (newName, alerts, closeDialog) => {
         console.log(newName);
         try {
@@ -153,8 +164,24 @@ export default {
       };
       this.auxDialog.shown = true;
     },
-    publishFile: function() {
-
+    publishFile: function(file) {
+      this.auxDialog.actionTitle = "Ok";
+      this.auxDialog.fieldLabel = "Share link"
+      this.auxDialog.placeholder = "";
+      this.auxDialog.action = undefined;
+      this.auxDialog.readonly = true;
+      this.auxDialog.title = "Your public file link:";
+      this.auxDialog.onShow = async (dialog) => {
+        dialog.progress.inProgress = true;
+        try {
+          const link = await this.authStore.userRequestController.publishFile(file.id);
+          dialog.fieldValue = this.buildProxyLink(link.link);
+        } catch (e) {
+          dialog.alerts.push(...e);
+        }
+        dialog.progress.inProgress = false;
+      }
+      this.auxDialog.shown = true;
     },
     deleteFile: async function(file) {
       if (file.is_downloading) return;
@@ -224,6 +251,13 @@ export default {
     },
     transformFolder: function(folder) {
       folder.created_at = new Date(folder.created_at);
+    },
+    buildProxyLink: function(publicLink) {
+      // Depends on current link format
+      const uuid = publicLink.split('/').pop();
+      const targetRoute = this.$router.resolve(`/download/${uuid}`);
+      const host = `${window.location.protocol}//${window.location.host}`;
+      return `${host}/${targetRoute.href}`;
     },
     loadData: async function(folderId) {
       if (folderId !== '-1') {

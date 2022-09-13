@@ -5,7 +5,12 @@
       :persistent="locked"
   >
     <v-card>
-      <v-card-title>Create folder</v-card-title>
+      <v-progress-linear
+        v-if="progress && progress.inProgress"
+        :value="progressPercent"
+      >
+      </v-progress-linear>
+      <v-card-title v-text="title"></v-card-title>
       <v-card-text>
         <v-form
             v-model="valid"
@@ -22,6 +27,8 @@
               :placeholder="placeholder"
               v-model="fieldValue"
               required
+              :readonly="readonly"
+              :autofocus="autofocus"
           ></v-text-field>
         </v-form>
       </v-card-text>
@@ -37,7 +44,7 @@
         <v-btn
             plain
             color="primary"
-            @click.stop="() => onAccept(fieldValue, alerts, closeDialog)"
+            @click.stop="onAccept ? onAccept(fieldValue, alerts, closeDialog) : closeDialog()"
             :disabled="locked || !valid"
             v-text="acceptActionTitle ?? 'Accept'"
         >
@@ -65,13 +72,23 @@ export default {
       type: Boolean,
       required: true
     },
+    onShow: {
+      type: Function,
+      required: false
+    },
     onAccept: {
       type: Function,
-      required: true
+      required: false
     },
     acceptActionTitle: String,
+    title: {
+      type: String,
+      required: true
+    },
     fieldLabel: String,
-    placeholder: String
+    placeholder: String,
+    readonly: Boolean,
+    autofocus: Boolean
   },
   data: () => ({
     rules: [
@@ -80,7 +97,12 @@ export default {
     valid: false,
     alerts: [],
     fieldValue: "",
-    locked: false
+    locked: false,
+    progress: {
+      inProgress: false,
+      progress: 0,
+      total: 0
+    }
   }),
   methods: {
     closeDialog: function() {
@@ -91,6 +113,18 @@ export default {
       this.locked = false;
       this.alerts = [];
       this.fieldValue = "";
+    }
+  },
+  computed: {
+    progressPercent: function() {
+      if (this.progress === undefined || this.progress.inProgress === false)
+        return 0;
+      return Math.round(this.progress.progress / this.progress.total * 100);
+    }
+  },
+  watch: {
+    isShown: function(newValue, oldValue) {
+      if (this.onShow && !oldValue && newValue) this.onShow(this);
     }
   }
 }
