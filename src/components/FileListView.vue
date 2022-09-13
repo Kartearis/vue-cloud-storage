@@ -58,7 +58,14 @@ export default {
         .filter((k) => k !== key)
         .forEach((k) => this.selection[k] = null);
       this.selection[key] = value;
+      if (key === 'folder' && value !== undefined) {
+        this.$emit('open_folder', this.folders[this.selection[key]]);
+        this.selection[key] = null;
+      }
     }
+  },
+  beforeRouteUpdate() {
+    console.log("Updating");
   }
 }
 </script>

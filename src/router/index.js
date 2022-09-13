@@ -10,9 +10,10 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
+    path: '/:folderId?',
     name: 'Files',
     component: FileView,
+    props: true,
     meta: {
       requiresAuth: true
     }

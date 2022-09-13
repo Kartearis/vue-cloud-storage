@@ -8,22 +8,9 @@
         :folders="folders"
         @delete_file="deleteFile($event)"
         @download_file="downloadFile($event)"
+        @open_folder="openFolder($event)"
     >
     </file-list-view>
-<!--    <v-dialog v-model="dialogShown">-->
-<!--      <v-card>-->
-<!--        <v-card-title>Are you sure?</v-card-title>-->
-<!--        <v-card-text>You are about to delete a file. Proceed?</v-card-text>-->
-<!--        <v-card-actions>-->
-<!--          <v-btn plain color="primary">-->
-<!--            Delete-->
-<!--          </v-btn>-->
-<!--          <v-btn plain>-->
-<!--            Cansel-->
-<!--          </v-btn>-->
-<!--        </v-card-actions>-->
-<!--      </v-card>-->
-<!--    </v-dialog>-->
   </div>
 </template>
 
@@ -39,6 +26,12 @@ export default {
   setup() {
     const authStore = useAuthStore()
     return { authStore }
+  },
+  props: {
+    folderId: {
+      type: String,
+      default: "-1"
+    }
   },
   data: () => ({
     loaded: false,
@@ -78,6 +71,9 @@ export default {
         file.download_progress = 0;
       });
     },
+    openFolder: function(folder) {
+      this.$router.push(`/${folder.id}`);
+    },
     transformFile: function(file) {
       file.expires_at = new Date(file.expires_at);
       file.created_at = new Date(file.created_at);
@@ -88,6 +84,18 @@ export default {
     },
     transformFolder: function(folder) {
       folder.created_at = new Date(folder.created_at);
+    },
+    loadData: async function(folderId) {
+      [this.files, this.folders] = await Promise.all([
+        this.authStore.userRequestController.getFiles(folderId),
+        Number(folderId) === -1 ? this.authStore.userRequestController.getFolders() : [{
+          id: -1,
+          name: ".."
+        }]
+      ]);
+      this.files.forEach(this.transformFile);
+      this.folders.forEach(this.transformFolder);
+      this.loaded = true;
     }
   },
   components: {
@@ -95,13 +103,14 @@ export default {
     FileListView
   },
   beforeMount: async function () {
-    [this.files, this.folders] = await Promise.all([
-        this.authStore.userRequestController.getFiles(),
-        this.authStore.userRequestController.getFolders()
-    ]);
-    this.files.forEach(this.transformFile);
-    this.folders.forEach(this.transformFolder);
-    this.loaded = true;
+    await this.loadData(this.folderId);
+  },
+  beforeRouteUpdate: async function(to, from, next) {
+    if (to.name === from.name && to.params.folderId !== from.params.folderId){
+      await this.loadData(to.params.folderId ?? "-1");
+      next();
+    }
+    else next();
   }
 }
 </script>

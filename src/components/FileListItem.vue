@@ -10,7 +10,7 @@
     </v-list-item-content>
     <v-list-item-action class="file-list-item__actions">
       <v-btn
-          v-if="fileType.type === 'Folder'"
+          v-if="fileType.type === 'Folder' && file.id !== -1"
           icon
           @click.stop="showInformation"
       >
@@ -131,6 +131,7 @@ export default {
       return fileTypes.find((type) => type.regex.test(fileExtension));
     },
     date: function() {
+      if (this.file.id === -1) return "";
       if (this.file.updated_at)
         return this.file.updated_at.toLocaleString();
       return this.file.created_at.toLocaleString();
