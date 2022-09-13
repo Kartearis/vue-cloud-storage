@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <v-toolbar>
       <v-toolbar-title v-text="currentFolder.name"></v-toolbar-title>
       <v-spacer></v-spacer>
@@ -59,7 +59,7 @@
         </v-btn>
       </template>
     </v-snackbar>
-  </div>
+  </v-container>
 </template>
 
 <script>
