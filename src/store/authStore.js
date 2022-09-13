@@ -91,7 +91,7 @@ function getLocalUser(prefix) {
 }
 
 function setLocalUser(prefix, data) {
-    console.log('Save user');
+    // console.log('Save user');
     localStorage.setItem(buildLabel(prefix), JSON.stringify(data));
 }
 
@@ -159,19 +159,24 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async getUserData() {
-            const userData = await this.userRequestController.getUserData();
-            this.user.email.value = userData.email;
-            this.user.name.value = userData.name;
-            this.user.storageInUse.value = userData.storage_size;
-            this.user.storageTotal.value = userData.storage_quota;
-            this.user.registrationDate.value = new Date(userData.created_at);
+            try {
+                const userData = await this.userRequestController.getUserData();
+                this.user.email.value = userData.email;
+                this.user.name.value = userData.name;
+                this.user.storageInUse.value = userData.storage_size;
+                this.user.storageTotal.value = userData.storage_quota;
+                this.user.registrationDate.value = new Date(userData.created_at);
+            }
+            catch (e) {
+                console.debug(e);
+            }
         },
 
         /**
          * Attempt to recover user data from localhost
          */
         tryRememberUser() {
-            console.log('Remember user');
+            // console.log('Remember user');
             this.user = getLocalUser('vue-cloud-storage');
             if (this.user.token.value)
                 this.userRequestController.setToken(this.user.token.value);
@@ -191,13 +196,12 @@ export const useAuthStore = defineStore('auth', {
 });
 
 const store = useAuthStore(pinia);
+store.userRequestController.setUnAuthHandler(() => {
+    store.clearAuthData();
+});
 store.tryRememberUser();
 store.$subscribe((
     mutation,
     state
 ) => setLocalUser('vue-cloud-storage', state.user), {detached: true});
-
-store.userRequestController.setUnAuthHandler(() => {
-    store.clearAuthData();
-});
 

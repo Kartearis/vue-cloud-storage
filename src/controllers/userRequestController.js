@@ -214,7 +214,7 @@ export default class UserRequestController {
     }
 
     async genericPostRequest(url, params, errorHandler = null) {
-        console.log(params);
+        // console.log(params);
         try {
             const response = await this.client.post(url, {}, {
                 params: params
@@ -228,7 +228,7 @@ export default class UserRequestController {
     }
 
     async genericGetRequest(url, params, errorHandler = null) {
-        console.log(url, params);
+        // console.log(url, params);
         try {
             const response = await this.client.get(url, {
                 params: params
@@ -242,7 +242,7 @@ export default class UserRequestController {
     }
 
     async genericDeleteRequest(url, params, errorHandler = null) {
-        console.log(url, params);
+        // console.log(url, params);
         try {
             const response = await this.client.delete(url, {
                 params: params
