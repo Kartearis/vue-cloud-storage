@@ -1,5 +1,6 @@
 import axios, {AxiosError} from "axios";
 
+const LONG_TIMEOUT = 1000 * 60 * 60;
 // Request controller for authorised requests
 // TODO: refactor
 export default class UserRequestController {
@@ -175,6 +176,7 @@ export default class UserRequestController {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 },
+                timeout: LONG_TIMEOUT,
                 onUploadProgress: progressHandler
             });
             if (response instanceof AxiosError)
@@ -193,7 +195,7 @@ export default class UserRequestController {
         try {
             const response = await this.client.get(`/files/${file.id}/download`, {
                 responseType: 'blob',
-                timeout: 1000 * 60 * 60,
+                timeout: LONG_TIMEOUT,
                 onDownloadProgress: progressHandler
             });
             if (response instanceof AxiosError)

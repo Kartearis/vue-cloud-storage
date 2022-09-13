@@ -9,6 +9,7 @@
           v-if="upload.inProgress"
           absolute
           top
+          :value="uploadProgress"
           color="primary"
       ></v-progress-linear>
       <v-card-title>Upload file</v-card-title>
@@ -143,6 +144,7 @@ export default {
         this.$emit('new_file', newFile);
         this.closeDialog();
       } catch (e) {
+        console.log(e);
         if (Array.isArray(e))
           this.alerts.push(...e);
         else throw "An unexpected error occured while handling upload errors";
@@ -165,6 +167,7 @@ export default {
   },
   computed: {
     expireDateTime: function() {
+      console.log("Expire time recalculated");
       const dt = new Date(this.expire.date)
       dt.setHours(this.expire.time.getHours());
       dt.setMinutes(this.expire.time.getMinutes());
