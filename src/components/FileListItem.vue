@@ -9,13 +9,14 @@
       <v-list-item-subtitle v-else><v-progress-linear :value="progress"></v-progress-linear></v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action class="file-list-item__actions">
-      <v-btn
-          v-if="false && fileType.type === 'Folder' && file.id !== -1"
-          icon
-          @click.stop="showInformation"
-      >
-        <v-icon color="grey lighten-1">mdi-information</v-icon>
-      </v-btn>
+      <!-- temporarily disabled -->
+<!--      <v-btn-->
+<!--          v-if="fileType.type === 'Folder' && file.id !== -1"-->
+<!--          icon-->
+<!--          @click.stop="showInformation"-->
+<!--      >-->
+<!--        <v-icon color="grey lighten-1">mdi-information</v-icon>-->
+<!--      </v-btn>-->
       <v-btn
           v-if="fileType.type !== 'Folder'"
           icon
