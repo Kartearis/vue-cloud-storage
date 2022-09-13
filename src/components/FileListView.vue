@@ -1,5 +1,7 @@
 <template>
-  <no-files-card class="ma-5" v-if="!(files && files.length > 0) && !(folders && folders.length > 0)">
+  <no-files-card class="ma-5" v-if="!(files && files.length > 0) && !(folders && folders.length > 0)"
+    v-on="$listeners"
+  >
   </no-files-card>
   <div v-else>
     <v-list subheader v-if="folders && folders.length > 0">
