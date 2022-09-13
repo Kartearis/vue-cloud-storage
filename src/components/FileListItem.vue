@@ -4,8 +4,18 @@
       <v-icon>{{ fileType.icon }}</v-icon>
     </v-list-item-avatar>
     <v-list-item-content>
-      <v-list-item-title v-text="file.name"></v-list-item-title>
-      <v-list-item-subtitle v-if="!file.is_downloading" v-text="date"></v-list-item-subtitle>
+      <v-list-item-title class="file-list-item__title">
+        {{ file.name }}
+          <v-chip v-if="file.public_url"
+                  color="primary"
+                  x-small
+          >
+            Public
+          </v-chip>
+        </v-list-item-title>
+      <v-list-item-subtitle v-if="!file.is_downloading">
+        {{ date }}
+      </v-list-item-subtitle>
       <v-list-item-subtitle v-else><v-progress-linear :value="progress"></v-progress-linear></v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action class="file-list-item__actions">
@@ -170,6 +180,13 @@ export default {
   .file-list-item__actions {
     display: flex;
     flex-direction: row;
+    align-items: center;
+  }
+
+  .file-list-item__title {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
     align-items: center;
   }
 </style>
