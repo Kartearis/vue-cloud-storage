@@ -22,7 +22,7 @@
     ></file-upload-dialog>
     <floating-controls
         v-model="controlsExpanded"
-        :actions="controlsActions"
+        :actions="restrictedControlsActions"
         @show_file_dialog="uploadDialogShown = true"
         @show_folder_dialog="1"
     ></floating-controls>
@@ -82,13 +82,13 @@ export default {
     controlsExpanded: false,
     controlsActions: [
       {
-        name: 'Upload file',
+        name: 'uploadFile',
         icon: 'mdi-file-plus',
         event: 'show_file_dialog',
         color: 'green'
       },
       {
-        name: 'Create folder',
+        name: 'createFolder',
         icon: 'mdi-folder-plus',
         event: 'show_folder_dialog',
         color: 'blue'
@@ -100,6 +100,11 @@ export default {
   computed: {
     formattedFolderSize: function() {
       return fileSizeFormatter(this.currentFolder.size);
+    },
+    restrictedControlsActions: function() {
+      if (parseInt(this.folderId) === -1)
+        return this.controlsActions;
+      else return [this.controlsActions.find((a) => a.name === 'uploadFile')];
     }
   },
   methods: {

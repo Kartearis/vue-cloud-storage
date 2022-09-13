@@ -1,5 +1,5 @@
 <template>
-  <v-speed-dial
+  <v-speed-dial v-if="actions.length > 1"
       :value="controlsExpanded"
       @input="$emit('input', $event)"
       transition="slide-y-reverse-transition"
@@ -38,6 +38,20 @@
       </v-icon>
     </v-btn>
   </v-speed-dial>
+  <v-fab-transition v-else>
+    <v-btn
+        :color="actions[0].color"
+        fixed
+        bottom
+        right
+        dark
+        fab
+        @click="$emit(actions[0].event)"
+    >
+      <v-icon v-text="actions[0].icon">
+      </v-icon>
+    </v-btn>
+  </v-fab-transition>
 </template>
 
 <script>
@@ -50,7 +64,10 @@ export default {
     controlsExpanded: Boolean,
     actions: {
       type: Array,
-      required: true
+      required: true,
+      validator: function (value) {
+        return value.length > 0;
+      }
     }
   }
 }
