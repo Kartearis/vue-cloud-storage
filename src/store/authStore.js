@@ -22,7 +22,7 @@ function dateTimeReviver(key, value) {
     return value;
 }
 
-function fileSizeFormatter(bytes) {
+export function fileSizeFormatter(bytes) {
     switch (true) {
         case bytes > 1000000:
             return `${(bytes / 1000000).toFixed(2)} MB`;
@@ -175,6 +175,17 @@ export const useAuthStore = defineStore('auth', {
             this.user = getLocalUser('vue-cloud-storage');
             if (this.user.token.value)
                 this.userRequestController.setToken(this.user.token.value);
+            // Pull user data updates
+            this.getUserData();
+        },
+
+        /**
+         * Action for local update of used storage. It is accurate enough for runtime size redisplay
+         *
+         * @param {Number} amount
+         */
+        updateStorageTaken(amount) {
+            this.user.storageInUse.value += amount;
         }
     },
 });

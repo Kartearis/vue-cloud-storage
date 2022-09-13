@@ -1,6 +1,10 @@
 <template>
   <div>
-    <v-toolbar></v-toolbar>
+    <v-toolbar>
+      <v-toolbar-title v-text="currentFolder.name"></v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-chip v-text="formattedFolderSize"></v-chip>
+    </v-toolbar>
     <preload-list-view v-if="!loaded"></preload-list-view>
     <file-list-view
         v-else
@@ -35,7 +39,7 @@
 
 <script>
 import FileListView from "@/components/FileListView";
-import {useAuthStore} from "@/store/authStore";
+import {useAuthStore, fileSizeFormatter} from "@/store/authStore";
 import PreloadListView from "@/components/PreloadListView";
 import FileUploadDialog from "@/components/FileUploadDialog";
 /**
@@ -56,9 +60,18 @@ export default {
   data: () => ({
     loaded: false,
     uploadDialogShown: false,
+    currentFolder: {
+      name: "/",
+      size: 0
+    },
     files: [],
     folders: []
   }),
+  computed: {
+    formattedFolderSize: function() {
+      return fileSizeFormatter(this.currentFolder.size);
+    }
+  },
   methods: {
     deleteFile: async function(file) {
       if (file.is_downloading) return;
@@ -71,6 +84,7 @@ export default {
         try {
           await this.authStore.userRequestController.deleteFile(file.id);
           this.files = this.files.filter((f) => f.id !== file.id);
+          this.updateStorage(-file.size);
         } catch(error) {
           console.debug(error);
         }
@@ -97,6 +111,12 @@ export default {
     processNewFile: function(file) {
       this.files.push(file);
       this.transformFile(this.files[this.files.length - 1]);
+      this.updateStorage(file.size);
+    },
+    updateStorage: function(amount) {
+      this.authStore.updateStorageTaken(amount);
+      if (this.folderId !== -1)
+        this.currentFolder.size += amount;
     },
     transformFile: function(file) {
       file.expires_at = new Date(file.expires_at);
@@ -110,6 +130,22 @@ export default {
       folder.created_at = new Date(folder.created_at);
     },
     loadData: async function(folderId) {
+      if (folderId !== '-1') {
+        try {
+          this.currentFolder = await this.authStore.userRequestController.getFolder(folderId);
+        } catch (e) {
+          // If unknown folder id encountered navigate to root
+          this.$router.push('/');
+          return;
+        }
+      }
+      else {
+        this.currentFolder = {
+          name: '/',
+          size: this.authStore.user.storageInUse.value
+        }
+      }
+
       [this.files, this.folders] = await Promise.all([
         this.authStore.userRequestController.getFiles(folderId),
         Number(folderId) === -1 ? this.authStore.userRequestController.getFolders() : [{

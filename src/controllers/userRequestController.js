@@ -105,6 +105,15 @@ export default class UserRequestController {
         return data.data;
     }
 
+    async getFolder(folderId) {
+        const data = await this.genericGetRequest(`/folders/${folderId}`, {},
+        (e) => {
+            if (e.response && e.response.status === 404)
+                throw 'Folder not found';
+        });
+        return data.data;
+    }
+
     async deleteFile(id) {
         await this.genericDeleteRequest(`/files/${id}`, {});
     }
