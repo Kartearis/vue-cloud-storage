@@ -92,7 +92,7 @@ const fileTypes = [
   {
     type: 'Unknown',
     regex: /.*/i,
-    icon: 'mdi-document-question'
+    icon: 'mdi-file-question'
   }
 ];
 
