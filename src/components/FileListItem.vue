@@ -39,13 +39,14 @@
       >
         <v-icon color="grey lighten-1">mdi-pencil</v-icon>
       </v-btn>
-      <v-btn
-          v-if="fileType.type !== 'Folder'"
-          icon
-          @click.stop="publishFile"
-      >
-        <v-icon color="grey lighten-1">mdi-share-variant</v-icon>
-      </v-btn>
+<!--      Sharing is disabled temporarily   -->
+<!--      <v-btn-->
+<!--          v-if="fileType.type !== 'Folder'"-->
+<!--          icon-->
+<!--          @click.stop="publishFile"-->
+<!--      >-->
+<!--        <v-icon color="grey lighten-1">mdi-share-variant</v-icon>-->
+<!--      </v-btn>-->
     </v-list-item-action>
   </v-list-item>
 </template>
