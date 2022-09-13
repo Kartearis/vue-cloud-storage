@@ -112,8 +112,10 @@ export default class UserRequestController {
     async downloadFile(file, progressHandler = () => {}) {
         const response = await this.client.get(`/files/${file.id}/download`, {
             responseType: 'blob',
+            timeout: 1000 * 60 * 60,
             onDownloadProgress: progressHandler
         });
+        console.log(response);
         // Content disposition is unavailable, so full_name from file data is used
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
