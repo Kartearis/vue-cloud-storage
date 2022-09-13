@@ -11,7 +11,11 @@
         @open_folder="openFolder($event)"
     >
     </file-list-view>
-    <file-upload-dialog v-model="uploadDialogShown"></file-upload-dialog>
+    <file-upload-dialog
+        v-model="uploadDialogShown"
+        :folder-id="folderId ? parseInt(folderId) : -1"
+        @new_file="processNewFile"
+    ></file-upload-dialog>
     <v-fab-transition>
       <v-btn
           color="primary"
@@ -89,6 +93,10 @@ export default {
     },
     openFolder: function(folder) {
       this.$router.push(`/${folder.id}`);
+    },
+    processNewFile: function(file) {
+      this.files.push(file);
+      this.transformFile(this.files[this.files.length - 1]);
     },
     transformFile: function(file) {
       file.expires_at = new Date(file.expires_at);

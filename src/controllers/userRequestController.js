@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 
 // Request controller for authorised requests
 // TODO: refactor
@@ -109,13 +109,38 @@ export default class UserRequestController {
         await this.genericDeleteRequest(`/files/${id}`, {});
     }
 
+    async uploadFile(file, folder_id = -1, expires_at = null, progressHandler = () => {}) {
+        const formData = new FormData();
+        formData.append("file", file);
+        if (folder_id !== -1)
+            formData.append("folder_id", folder_id);
+        if (expires_at)
+            formData.append("expires_at", this.convertDateTime(expires_at));
+        try {
+            const response = await this.client.post('/files', formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+                onUploadProgress: progressHandler
+            });
+            if (response instanceof AxiosError)
+                throw response;
+            else return response.data.data;
+        } catch (e) {
+            if (e.response && e.response.status === 422)
+            {
+                throw Object.values(e.response.data.errors).flat();
+            }
+            else throw e;
+        }
+    }
+
     async downloadFile(file, progressHandler = () => {}) {
         const response = await this.client.get(`/files/${file.id}/download`, {
             responseType: 'blob',
             timeout: 1000 * 60 * 60,
             onDownloadProgress: progressHandler
         });
-        console.log(response);
         // Content disposition is unavailable, so full_name from file data is used
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
@@ -166,5 +191,17 @@ export default class UserRequestController {
                 errorHandler(e);
             else throw e;
         }
+    }
+
+    /**
+     * Converts provided Date object to required by API string representation
+     *
+     * @param {Date} date
+     * @returns {string} DateTime in format 'YYYY-MM-DD HH:MM'
+     */
+    convertDateTime(date) {
+        const parts = date.toISOString().split('T');
+        parts[1] = parts[1].split('.')[0];
+        return `${parts[0]} ${parts[1]}`;
     }
 }
