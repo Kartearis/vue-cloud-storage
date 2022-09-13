@@ -20,20 +20,13 @@
         :folder-id="folderId ? parseInt(folderId) : -1"
         @new_file="processNewFile"
     ></file-upload-dialog>
-    <v-fab-transition>
-      <v-btn
-          color="primary"
-          fixed
-          bottom
-          right
-          fab
-          @click="uploadDialogShown = true"
-      >
-        <v-icon>
-          mdi-plus
-        </v-icon>
-      </v-btn>
-    </v-fab-transition>
+    <floating-controls
+        v-model="controlsExpanded"
+        :actions="controlsActions"
+        @show_file_dialog="uploadDialogShown = true"
+        @show_folder_dialog="1"
+    ></floating-controls>
+
     <v-snackbar
         v-model="error.shown"
         timeout="2000"
@@ -59,6 +52,7 @@ import FileListView from "@/components/FileListView";
 import {useAuthStore, fileSizeFormatter} from "@/store/authStore";
 import PreloadListView from "@/components/PreloadListView";
 import FileUploadDialog from "@/components/FileUploadDialog";
+import FloatingControls from "@/components/FloatingControls";
 /**
  * Loads data from server and links concrete file views to controls
  */
@@ -85,8 +79,23 @@ export default {
       shown: false,
       text: ""
     },
+    controlsExpanded: false,
+    controlsActions: [
+      {
+        name: 'Upload file',
+        icon: 'mdi-file-plus',
+        event: 'show_file_dialog',
+        color: 'green'
+      },
+      {
+        name: 'Create folder',
+        icon: 'mdi-folder-plus',
+        event: 'show_folder_dialog',
+        color: 'blue'
+      }
+    ],
     files: [],
-    folders: []
+    folders: [],
   }),
   computed: {
     formattedFolderSize: function() {
@@ -189,6 +198,7 @@ export default {
     }
   },
   components: {
+    FloatingControls,
     FileUploadDialog,
     PreloadListView,
     FileListView
