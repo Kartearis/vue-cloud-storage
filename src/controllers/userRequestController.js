@@ -1,19 +1,15 @@
-import axios, {AxiosError} from "axios";
+import {AxiosError} from "axios";
+import BaseController from "@/controllers/baseController";
 
 const LONG_TIMEOUT = 1000 * 60 * 60;
 // Request controller for authorised requests
 // TODO: refactor
-export default class UserRequestController {
-    client
+export default class UserRequestController extends BaseController{
     token
 
     constructor(host) {
+        super(host)
         this.token = null;
-        this.client = axios.create({
-            baseURL: host,
-            timeout: 2000,
-            headers: {'Content-Type': 'application/json'}
-        });
         this.client.interceptors.request.use((config) => {
             config.headers.Authorization =  this.token ? `Bearer ${this.token}` : '';
             return config;
@@ -212,48 +208,6 @@ export default class UserRequestController {
             if (e.response && e.response.status === 404)
                 throw 'File not found. Maybe it has expired?';
             throw e;
-        }
-    }
-
-    async genericPostRequest(url, params, errorHandler = null) {
-        // console.log(params);
-        try {
-            const response = await this.client.post(url, {}, {
-                params: params
-            });
-            return response.data;
-        } catch (e) {
-            if (errorHandler)
-                errorHandler(e);
-            else throw e;
-        }
-    }
-
-    async genericGetRequest(url, params, errorHandler = null) {
-        // console.log(url, params);
-        try {
-            const response = await this.client.get(url, {
-                params: params
-            });
-            return response.data;
-        } catch (e) {
-            if (errorHandler)
-                errorHandler(e);
-            else throw e;
-        }
-    }
-
-    async genericDeleteRequest(url, params, errorHandler = null) {
-        // console.log(url, params);
-        try {
-            const response = await this.client.delete(url, {
-                params: params
-            });
-            return response.data;
-        } catch (e) {
-            if (errorHandler)
-                errorHandler(e);
-            else throw e;
         }
     }
 
