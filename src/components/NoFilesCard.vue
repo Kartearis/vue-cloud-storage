@@ -9,7 +9,9 @@
     <v-card-actions>
       <v-btn
           plain
-          color="primary">
+          color="primary"
+          @click.stop="$emit('show_file_dialog')"
+      >
         Upload file
       </v-btn>
     </v-card-actions>

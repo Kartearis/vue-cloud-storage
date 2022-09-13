@@ -15,6 +15,7 @@
         @open_folder="openFolder($event)"
         @rename_file="renameFile($event)"
         @publish_file="publishFile($event)"
+        @show_file_dialog="uploadDialogShown = true"
     >
     </file-list-view>
     <file-upload-dialog
