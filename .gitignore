@@ -1,7 +1,6 @@
 .DS_Store
 node_modules
-/dist
-
+# /dist Removed from gh-pages branch
 
 # local env files
 .env.local
