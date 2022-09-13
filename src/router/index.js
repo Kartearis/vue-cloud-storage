@@ -10,15 +10,6 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/:folderId?',
-    name: 'Files',
-    component: FileView,
-    props: true,
-    meta: {
-      requiresAuth: true
-    }
-  },
-  {
     path: '/auth',
     name: 'Auth',
     component: AuthView
@@ -35,7 +26,16 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
+  },
+  {
+    path: '/:folderId?',
+    name: 'Files',
+    component: FileView,
+    props: true,
+    meta: {
+      requiresAuth: true
+    }
+  },
 ]
 
 const router = new VueRouter({
