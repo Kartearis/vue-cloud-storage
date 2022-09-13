@@ -175,7 +175,9 @@ export default {
         dialog.progress.inProgress = true;
         try {
           const link = await this.authStore.userRequestController.publishFile(file.id);
-          dialog.fieldValue = this.buildProxyLink(link.link);
+          const proxyLink = this.buildProxyLink(link.link);
+          dialog.fieldValue = proxyLink;
+          file.public_url = proxyLink;
         } catch (e) {
           dialog.alerts.push(...e);
         }
@@ -245,6 +247,8 @@ export default {
       file.expires_at = new Date(file.expires_at);
       file.created_at = new Date(file.created_at);
       file.updated_at = new Date(file.updated_at);
+      if (file.public_url)
+        file.public_url = this.buildProxyLink(file.public_url);
       this.$set(file, 'is_downloading', false);
       this.$set(file, 'download_progress', 0);
       this.$set(file, 'download_total', 0);
