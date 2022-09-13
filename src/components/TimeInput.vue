@@ -2,6 +2,7 @@
   <v-menu
       offset-y
       v-model="menu"
+      :close-on-content-click="false"
   >
     <template v-slot:activator="{ on, attrs }">
       <v-text-field
@@ -17,7 +18,7 @@
         v-if="menu"
         no-title
         format="24hr"
-        :value="value.toISOString()"
+        :value="time"
         @input="emitTime"
         @click:minute="menu = false"
     >
@@ -42,13 +43,14 @@ export default {
   },
   methods: {
     emitTime: function (time) {
-      console.log(time);
       const [hours, minutes] = time.split(':').map((part) => parseInt(part));
+      // Create new object so Vue reactivity works
+      const newDate = new Date(this.innerTime.getTime());
       if (!Number.isNaN(hours))
-        this.innerTime.setHours(hours);
+        newDate.setHours(hours);
       if (!Number.isNaN(minutes))
-        this.innerTime.setMinutes(minutes);
-      this.$emit('input', this.innerTime);
+        newDate.setMinutes(minutes);
+      this.$emit('input', newDate);
     }
   }
 }
