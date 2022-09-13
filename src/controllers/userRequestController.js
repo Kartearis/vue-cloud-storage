@@ -35,7 +35,7 @@ export default class UserRequestController {
                     {
                         handler(error);
                     }
-                    return error;
+                    throw error;
                 })
     }
 
