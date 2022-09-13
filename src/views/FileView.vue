@@ -47,11 +47,20 @@ export default {
     folders: []
   }),
   methods: {
-    deleteFile: function(file) {
+    deleteFile: async function(file) {
       if (file.is_downloading) return;
-      this.authStore.userRequestController.deleteFile(file.id)
-        .then(() => this.files = this.files.filter((f) => f.id !== file.id))
-        .catch((error) => console.debug(error));
+      const answer = await this.$confirm(`Do you really want to delete ${file.name}?`, {
+        title: 'Delete file',
+        color: 'primary',
+        icon: 'mdi-help'
+      });
+      if (answer === true)
+        try {
+          await this.authStore.userRequestController.deleteFile(file.id);
+          this.files = this.files.filter((f) => f.id !== file.id);
+        } catch(error) {
+          console.debug(error);
+        }
     },
     downloadFile: function(file) {
       // Prevent additional downloads
