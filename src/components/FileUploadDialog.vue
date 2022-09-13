@@ -167,7 +167,6 @@ export default {
   },
   computed: {
     expireDateTime: function() {
-      console.log("Expire time recalculated");
       const dt = new Date(this.expire.date)
       dt.setHours(this.expire.time.getHours());
       dt.setMinutes(this.expire.time.getMinutes());
