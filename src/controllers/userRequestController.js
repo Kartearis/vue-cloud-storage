@@ -105,6 +105,25 @@ export default class UserRequestController {
         return data.data;
     }
 
+    async deleteFile(id) {
+        await this.genericDeleteRequest(`/files/${id}`, {});
+    }
+
+    async downloadFile(file, progressHandler = () => {}) {
+        const response = await this.client.get(`/files/${file.id}/download`, {
+            responseType: 'blob',
+            onDownloadProgress: progressHandler
+        });
+        // Content disposition is unavailable, so full_name from file data is used
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', file.full_name);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    }
+
     async genericPostRequest(url, params, errorHandler = null) {
         console.log(params);
         try {
@@ -123,6 +142,20 @@ export default class UserRequestController {
         console.log(url, params);
         try {
             const response = await this.client.get(url, {
+                params: params
+            });
+            return response.data;
+        } catch (e) {
+            if (errorHandler)
+                errorHandler(e);
+            else throw e;
+        }
+    }
+
+    async genericDeleteRequest(url, params, errorHandler = null) {
+        console.log(url, params);
+        try {
+            const response = await this.client.delete(url, {
                 params: params
             });
             return response.data;

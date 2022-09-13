@@ -5,16 +5,31 @@
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title v-text="file.name"></v-list-item-title>
-      <v-list-item-subtitle v-text="date"></v-list-item-subtitle>
+      <v-list-item-subtitle v-if="!file.is_downloading" v-text="date"></v-list-item-subtitle>
+      <v-list-item-subtitle v-else><v-progress-linear :value="progress"></v-progress-linear></v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action class="file-list-item__actions">
-      <v-btn icon>
+      <v-btn
+          v-if="fileType.type === 'Folder'"
+          icon
+          @click.stop="showInformation"
+      >
         <v-icon color="grey lighten-1">mdi-information</v-icon>
       </v-btn>
-      <v-btn icon>
+      <v-btn
+          v-if="fileType.type !== 'Folder'"
+          icon
+          @click.stop="download"
+          :disabled="file.is_downloading"
+      >
         <v-icon color="grey lighten-1">mdi-download</v-icon>
       </v-btn>
-      <v-btn icon>
+      <v-btn
+          v-if="fileType.type !== 'Folder'"
+          icon
+          @click.stop="deleteFile"
+          :disabled="file.is_downloading"
+      >
         <v-icon color="red lighten-2">mdi-delete</v-icon>
       </v-btn>
     </v-list-item-action>
@@ -94,6 +109,15 @@ export default {
     }
   },
   methods: {
+    showInformation: function() {
+      this.$emit('show_information', this.file, this.fileType);
+    },
+    download: function() {
+      this.$emit('download_file', this.file);
+    },
+    deleteFile: function() {
+      this.$emit('delete_file', this.file);
+    },
     getExtension: function(file) {
       const parts = file.split('.');
       if (parts.length > 1)
@@ -110,6 +134,11 @@ export default {
       if (this.file.updated_at)
         return this.file.updated_at.toLocaleString();
       return this.file.created_at.toLocaleString();
+    },
+    progress: function() {
+      if (!this.file.is_downloading) return 0;
+      if (this.file.download_total === 0) return 0;
+      return Math.round(this.file.download_progress / this.file.download_total * 100);
     }
   }
 }
