@@ -10,7 +10,7 @@
     </v-list-item-content>
     <v-list-item-action class="file-list-item__actions">
       <v-btn
-          v-if="fileType.type === 'Folder' && file.id !== -1"
+          v-if="false && fileType.type === 'Folder' && file.id !== -1"
           icon
           @click.stop="showInformation"
       >
@@ -31,6 +31,20 @@
           :disabled="file.is_downloading"
       >
         <v-icon color="red lighten-2">mdi-delete</v-icon>
+      </v-btn>
+      <v-btn
+          v-if="fileType.type !== 'Folder'"
+          icon
+          @click.stop="renameFile"
+      >
+        <v-icon color="grey lighten-1">mdi-pencil</v-icon>
+      </v-btn>
+      <v-btn
+          v-if="fileType.type !== 'Folder'"
+          icon
+          @click.stop="publishFile"
+      >
+        <v-icon color="grey lighten-1">mdi-share-variant</v-icon>
       </v-btn>
     </v-list-item-action>
   </v-list-item>
@@ -117,6 +131,12 @@ export default {
     },
     deleteFile: function() {
       this.$emit('delete_file', this.file);
+    },
+    renameFile: function () {
+      this.$emit('rename_file', this.file);
+    },
+    publishFile: function () {
+      this.$emit('publish_file', this.file);
     },
     getExtension: function(file) {
       const parts = file.split('.');

@@ -125,7 +125,34 @@ export default class UserRequestController {
                 throw Object.values(e.response.data.errors).flat();
             throw e;
         }
+    }
 
+    async renameFile(id, newName) {
+        try {
+            const result = await this.client.patch(`/files/${id}`, {}, {
+                params: {
+                    name: newName
+                }
+            });
+            if (result instanceof AxiosError)
+                throw result;
+            return result.data.data;
+        } catch (e) {
+            if (e.response && e.response.status === 422)
+                throw Object.values(e.response.data.errors).flat();
+        }
+    }
+
+    async publishFile(id) {
+        try {
+            const result = await this.genericPostRequest(`/files/${id}/publish`, {});
+            if (result instanceof AxiosError)
+                throw result;
+            return result.data;
+        } catch (e) {
+            if (e.response && e.response.status === 422)
+                throw Object.values(e.response.data.errors).flat();
+        }
     }
 
     async deleteFile(id) {

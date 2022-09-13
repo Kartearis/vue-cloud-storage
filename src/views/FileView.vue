@@ -13,6 +13,8 @@
         @delete_file="deleteFile($event)"
         @download_file="downloadFile($event)"
         @open_folder="openFolder($event)"
+        @rename_file="renameFile($event)"
+        @publish_file="publishFile($event)"
     >
     </file-list-view>
     <file-upload-dialog
@@ -25,6 +27,14 @@
       @new_folder="processNewFolder"
     >
     </folder-creation-dialog>
+    <one-field-dialog
+      v-model="auxDialog.shown"
+      :on-accept="auxDialog.action"
+      :accept-action-title="auxDialog.actionTitle"
+      :field-label="auxDialog.fieldLabel"
+      :placeholder="auxDialog.placeholder"
+    >
+    </one-field-dialog>
     <floating-controls
         v-model="controlsExpanded"
         :actions="restrictedControlsActions"
@@ -59,6 +69,7 @@ import PreloadListView from "@/components/PreloadListView";
 import FileUploadDialog from "@/components/FileUploadDialog";
 import FloatingControls from "@/components/FloatingControls";
 import FolderCreationDialog from "@/components/FolderCreationDialog";
+import OneFieldDialog from "@/components/OneFieldDialog";
 /**
  * Loads data from server and links concrete file views to controls
  */
@@ -78,6 +89,13 @@ export default {
     loaded: false,
     uploadDialogShown: false,
     creationDialogShown: false,
+    auxDialog: {
+      shown: false,
+      action: () => {},
+      actionTitle: undefined,
+      fieldLabel: "",
+      placeholder: ""
+    },
     currentFolder: {
       name: "/",
       size: 0
@@ -115,6 +133,28 @@ export default {
     }
   },
   methods: {
+    renameFile: function(file) {
+      this.auxDialog.actionTitle = "Rename";
+      this.auxDialog.fieldLabel = "New name";
+      this.auxDialog.placeholder = file.name;
+      this.auxDialog.action = async (newName, alerts, closeDialog) => {
+        console.log(newName);
+        try {
+          const result = await this.authStore.userRequestController.renameFile(file.id, newName);
+          file.name = result.name;
+          file.full_name = result.full_name;
+          closeDialog();
+        } catch (e) {
+          if (Array.isArray(e))
+            alerts.push(...e);
+          else throw "Unknown error encountered during renaming file";
+        }
+      };
+      this.auxDialog.shown = true;
+    },
+    publishFile: function() {
+
+    },
     deleteFile: async function(file) {
       if (file.is_downloading) return;
       const answer = await this.$confirm(`Do you really want to delete ${file.name}?`, {
@@ -214,6 +254,7 @@ export default {
     }
   },
   components: {
+    OneFieldDialog,
     FolderCreationDialog,
     FloatingControls,
     FileUploadDialog,
