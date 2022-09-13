@@ -11,6 +11,21 @@
         @open_folder="openFolder($event)"
     >
     </file-list-view>
+    <file-upload-dialog v-model="uploadDialogShown"></file-upload-dialog>
+    <v-fab-transition>
+      <v-btn
+          color="primary"
+          fixed
+          bottom
+          right
+          fab
+          @click="uploadDialogShown = true"
+      >
+        <v-icon>
+          mdi-plus
+        </v-icon>
+      </v-btn>
+    </v-fab-transition>
   </div>
 </template>
 
@@ -18,6 +33,7 @@
 import FileListView from "@/components/FileListView";
 import {useAuthStore} from "@/store/authStore";
 import PreloadListView from "@/components/PreloadListView";
+import FileUploadDialog from "@/components/FileUploadDialog";
 /**
  * Loads data from server and links concrete file views to controls
  */
@@ -35,7 +51,7 @@ export default {
   },
   data: () => ({
     loaded: false,
-    dialogShown: false,
+    uploadDialogShown: false,
     files: [],
     folders: []
   }),
@@ -99,6 +115,7 @@ export default {
     }
   },
   components: {
+    FileUploadDialog,
     PreloadListView,
     FileListView
   },
