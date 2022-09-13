@@ -174,10 +174,13 @@ export default {
       this.auxDialog.onShow = async (dialog) => {
         dialog.progress.inProgress = true;
         try {
-          const link = await this.authStore.userRequestController.publishFile(file.id);
-          const proxyLink = this.buildProxyLink(link.link);
-          dialog.fieldValue = proxyLink;
-          file.public_url = proxyLink;
+          let proxyLink = null;
+          if (!file.public_url) {
+            const link = await this.authStore.userRequestController.publishFile(file.id);
+            proxyLink = this.buildProxyLink(link.link);
+            file.public_url = proxyLink;
+          }
+          dialog.fieldValue = file.public_url;
         } catch (e) {
           dialog.alerts.push(...e);
         }
