@@ -20,11 +20,16 @@
         :folder-id="folderId ? parseInt(folderId) : -1"
         @new_file="processNewFile"
     ></file-upload-dialog>
+    <folder-creation-dialog
+      v-model="creationDialogShown"
+      @new_folder="processNewFolder"
+    >
+    </folder-creation-dialog>
     <floating-controls
         v-model="controlsExpanded"
         :actions="restrictedControlsActions"
         @show_file_dialog="uploadDialogShown = true"
-        @show_folder_dialog="1"
+        @show_folder_dialog="creationDialogShown = true"
     ></floating-controls>
 
     <v-snackbar
@@ -53,6 +58,7 @@ import {useAuthStore, fileSizeFormatter} from "@/store/authStore";
 import PreloadListView from "@/components/PreloadListView";
 import FileUploadDialog from "@/components/FileUploadDialog";
 import FloatingControls from "@/components/FloatingControls";
+import FolderCreationDialog from "@/components/FolderCreationDialog";
 /**
  * Loads data from server and links concrete file views to controls
  */
@@ -71,6 +77,7 @@ export default {
   data: () => ({
     loaded: false,
     uploadDialogShown: false,
+    creationDialogShown: false,
     currentFolder: {
       name: "/",
       size: 0
@@ -153,6 +160,10 @@ export default {
       this.transformFile(this.files[this.files.length - 1]);
       this.updateStorage(file.size);
     },
+    processNewFolder: function(folder) {
+      this.folders.push(folder);
+      this.transformFolder(this.folders[this.folders.length - 1]);
+    },
     updateStorage: function(amount) {
       this.authStore.updateStorageTaken(amount);
       if (this.folderId !== -1)
@@ -203,6 +214,7 @@ export default {
     }
   },
   components: {
+    FolderCreationDialog,
     FloatingControls,
     FileUploadDialog,
     PreloadListView,

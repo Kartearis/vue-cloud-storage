@@ -114,6 +114,20 @@ export default class UserRequestController {
         return data.data;
     }
 
+    async createFolder(folderName) {
+        try {
+            const response = await this.genericPostRequest('/folders', {name: folderName});
+            if (response instanceof AxiosError)
+                throw response;
+            else return response.data;
+        } catch (e) {
+            if (e.response && e.response.status === 422)
+                throw Object.values(e.response.data.errors).flat();
+            throw e;
+        }
+
+    }
+
     async deleteFile(id) {
         await this.genericDeleteRequest(`/files/${id}`, {}, (e) => {
             if (e.response && e.response.status === 404)
