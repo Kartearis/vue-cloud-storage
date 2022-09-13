@@ -34,6 +34,23 @@
         </v-icon>
       </v-btn>
     </v-fab-transition>
+    <v-snackbar
+        v-model="error.shown"
+        timeout="2000"
+    >
+      {{ error.text }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="primary"
+            text
+            v-bind="attrs"
+            @click="error.shown = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -64,6 +81,10 @@ export default {
       name: "/",
       size: 0
     },
+    error: {
+      shown: false,
+      text: ""
+    },
     files: [],
     folders: []
   }),
@@ -83,10 +104,11 @@ export default {
       if (answer === true)
         try {
           await this.authStore.userRequestController.deleteFile(file.id);
-          this.files = this.files.filter((f) => f.id !== file.id);
-          this.updateStorage(-file.size);
+          this.removeFileFromView(file);
         } catch(error) {
-          console.debug(error);
+          this.error.text = error.toString();
+          this.error.shown = true;
+          this.removeFileFromView(file);
         }
     },
     downloadFile: function(file) {
@@ -103,6 +125,10 @@ export default {
         file.is_downloading = false;
         file.download_total = 0;
         file.download_progress = 0;
+      }).catch((error) => {
+        this.error.text = error.toString();
+        this.error.shown = true;
+        this.removeFileFromView(file);
       });
     },
     openFolder: function(folder) {
@@ -117,6 +143,10 @@ export default {
       this.authStore.updateStorageTaken(amount);
       if (this.folderId !== -1)
         this.currentFolder.size += amount;
+    },
+    removeFileFromView: function(file) {
+      this.files = this.files.filter((f) => f.id !== file.id);
+      this.updateStorage(-file.size);
     },
     transformFile: function(file) {
       file.expires_at = new Date(file.expires_at);

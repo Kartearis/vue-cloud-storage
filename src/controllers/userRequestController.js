@@ -115,7 +115,11 @@ export default class UserRequestController {
     }
 
     async deleteFile(id) {
-        await this.genericDeleteRequest(`/files/${id}`, {});
+        await this.genericDeleteRequest(`/files/${id}`, {}, (e) => {
+            if (e.response && e.response.status === 404)
+                throw 'File not found. Maybe it has expired?';
+            throw e;
+        });
     }
 
     async uploadFile(file, folder_id = -1, expires_at = null, progressHandler = () => {}) {
@@ -145,19 +149,27 @@ export default class UserRequestController {
     }
 
     async downloadFile(file, progressHandler = () => {}) {
-        const response = await this.client.get(`/files/${file.id}/download`, {
-            responseType: 'blob',
-            timeout: 1000 * 60 * 60,
-            onDownloadProgress: progressHandler
-        });
-        // Content disposition is unavailable, so full_name from file data is used
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', file.full_name);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
+        try {
+            const response = await this.client.get(`/files/${file.id}/download`, {
+                responseType: 'blob',
+                timeout: 1000 * 60 * 60,
+                onDownloadProgress: progressHandler
+            });
+            if (response instanceof AxiosError)
+                throw response;
+            // Content disposition is unavailable, so full_name from file data is used
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', file.full_name);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (e) {
+            if (e.response && e.response.status === 404)
+                throw 'File not found. Maybe it has expired?';
+            throw e;
+        }
     }
 
     async genericPostRequest(url, params, errorHandler = null) {
