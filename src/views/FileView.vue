@@ -3,10 +3,24 @@
     <v-toolbar>
       <v-toolbar-title v-text="currentFolder.name"></v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn-toggle
+        v-model="viewMode"
+        mandatory>
+        <v-btn>
+          <v-icon>
+            mdi-format-list-bulleted
+          </v-icon>
+        </v-btn>
+        <v-btn>
+          <v-icon>
+            mdi-dots-grid
+          </v-icon>
+        </v-btn>
+      </v-btn-toggle>
       <v-chip v-text="formattedFolderSize"></v-chip>
     </v-toolbar>
     <preload-list-view v-if="!loaded"></preload-list-view>
-    <file-list-view
+    <component v-bind:is="selectedViewLayout"
         v-else
         :files="files"
         :folders="folders"
@@ -17,7 +31,7 @@
         @publish_file="publishFile($event)"
         @show_file_dialog="uploadDialogShown = true"
     >
-    </file-list-view>
+    </component>
     <file-upload-dialog
         v-model="uploadDialogShown"
         :folder-id="folderId ? parseInt(folderId) : -1"
@@ -69,12 +83,14 @@
 
 <script>
 import FileListView from "@/components/FileListView";
+import FileGridView from "@/components/FileGridView";
 import {useAuthStore, fileSizeFormatter} from "@/store/authStore";
 import PreloadListView from "@/components/PreloadListView";
 import FileUploadDialog from "@/components/FileUploadDialog";
 import FloatingControls from "@/components/FloatingControls";
 import FolderCreationDialog from "@/components/FolderCreationDialog";
 import OneFieldDialog from "@/components/OneFieldDialog";
+
 /**
  * Loads data from server and links concrete file views to controls
  */
@@ -94,6 +110,7 @@ export default {
     loaded: false,
     uploadDialogShown: false,
     creationDialogShown: false,
+    viewMode: null,
     auxDialog: {
       shown: false,
       action: undefined,
@@ -132,6 +149,10 @@ export default {
     folders: [],
   }),
   computed: {
+    selectedViewLayout: function() {
+      const layouts = ['FileListView', 'FileGridView'];
+      return layouts[this.viewMode];
+    },
     formattedFolderSize: function() {
       return fileSizeFormatter(this.currentFolder.size);
     },
@@ -301,6 +322,7 @@ export default {
     FloatingControls,
     FileUploadDialog,
     PreloadListView,
+    FileGridView,
     FileListView
   },
   beforeMount: async function () {
