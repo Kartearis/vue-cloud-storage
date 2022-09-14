@@ -5,7 +5,9 @@
       <v-spacer></v-spacer>
       <v-btn-toggle
         v-model="viewMode"
-        mandatory>
+        group
+        mandatory
+      >
         <v-btn>
           <v-icon>
             mdi-format-list-bulleted
