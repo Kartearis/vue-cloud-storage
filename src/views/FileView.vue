@@ -3,10 +3,27 @@
     <v-toolbar>
       <v-toolbar-title v-text="currentFolder.name"></v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-chip v-text="formattedFolderSize"></v-chip>
+      <v-btn-toggle
+        v-model="viewMode"
+        group
+        mandatory
+      >
+        <v-btn>
+          <v-icon>
+            mdi-format-list-bulleted
+          </v-icon>
+        </v-btn>
+        <v-btn>
+          <v-icon>
+            mdi-dots-grid
+          </v-icon>
+        </v-btn>
+      </v-btn-toggle >
+      <v-chip class="ml-4"
+          v-text="formattedFolderSize"></v-chip>
     </v-toolbar>
-    <preload-list-view v-if="!loaded"></preload-list-view>
-    <file-list-view
+    <component v-bind:is="selectedPreload" v-if="!loaded"></component>
+    <component v-bind:is="selectedViewLayout"
         v-else
         :files="files"
         :folders="folders"
@@ -17,7 +34,7 @@
         @publish_file="publishFile($event)"
         @show_file_dialog="uploadDialogShown = true"
     >
-    </file-list-view>
+    </component>
     <file-upload-dialog
         v-model="uploadDialogShown"
         :folder-id="folderId ? parseInt(folderId) : -1"
@@ -33,7 +50,11 @@
       :on-accept="auxDialog.action"
       :accept-action-title="auxDialog.actionTitle"
       :field-label="auxDialog.fieldLabel"
+      :title="auxDialog.title"
       :placeholder="auxDialog.placeholder"
+      :readonly="auxDialog.readonly"
+      :on-show="auxDialog.onShow"
+      :autofocus="auxDialog.autofocus"
     >
     </one-field-dialog>
     <floating-controls
@@ -65,12 +86,15 @@
 
 <script>
 import FileListView from "@/components/FileListView";
+import FileGridView from "@/components/FileGridView";
 import {useAuthStore, fileSizeFormatter} from "@/store/authStore";
 import PreloadListView from "@/components/PreloadListView";
+import PreloadGridView from "@/components/PreloadGridView";
 import FileUploadDialog from "@/components/FileUploadDialog";
 import FloatingControls from "@/components/FloatingControls";
 import FolderCreationDialog from "@/components/FolderCreationDialog";
 import OneFieldDialog from "@/components/OneFieldDialog";
+
 /**
  * Loads data from server and links concrete file views to controls
  */
@@ -90,12 +114,17 @@ export default {
     loaded: false,
     uploadDialogShown: false,
     creationDialogShown: false,
+    viewMode: null,
     auxDialog: {
       shown: false,
-      action: () => {},
+      action: undefined,
+      onShow: undefined,
+      readonly: false,
       actionTitle: undefined,
       fieldLabel: "",
-      placeholder: ""
+      title: "",
+      placeholder: "",
+      autofocus: true
     },
     currentFolder: {
       name: "/",
@@ -122,8 +151,18 @@ export default {
     ],
     files: [],
     folders: [],
+    timers: []
   }),
   computed: {
+    selectedViewLayout: function() {
+      const layouts = ['FileListView', 'FileGridView'];
+      this.authStore.setPreferredFileLayout(this.viewMode);
+      return layouts[this.viewMode];
+    },
+    selectedPreload: function() {
+      const preloads = ['PreloadListView', 'PreloadGridView'];
+      return preloads[this.viewMode];
+    },
     formattedFolderSize: function() {
       return fileSizeFormatter(this.currentFolder.size);
     },
@@ -138,8 +177,10 @@ export default {
       this.auxDialog.actionTitle = "Rename";
       this.auxDialog.fieldLabel = "New name";
       this.auxDialog.placeholder = file.name;
+      this.auxDialog.readonly = false;
+      this.auxDialog.onShow = undefined;
+      this.auxDialog.title = "Rename file";
       this.auxDialog.action = async (newName, alerts, closeDialog) => {
-        console.log(newName);
         try {
           const result = await this.authStore.userRequestController.renameFile(file.id, newName);
           file.name = result.name;
@@ -153,8 +194,29 @@ export default {
       };
       this.auxDialog.shown = true;
     },
-    publishFile: function() {
-
+    publishFile: function(file) {
+      this.auxDialog.actionTitle = "Ok";
+      this.auxDialog.fieldLabel = "Share link"
+      this.auxDialog.placeholder = "";
+      this.auxDialog.action = undefined;
+      this.auxDialog.readonly = true;
+      this.auxDialog.title = "Your public file link:";
+      this.auxDialog.onShow = async (dialog) => {
+        dialog.progress.inProgress = true;
+        try {
+          let proxyLink = null;
+          if (!file.public_url) {
+            const link = await this.authStore.userRequestController.publishFile(file.id);
+            proxyLink = this.buildProxyLink(link.link);
+            file.public_url = proxyLink;
+          }
+          dialog.fieldValue = file.public_url;
+        } catch (e) {
+          dialog.alerts.push(...e);
+        }
+        dialog.progress.inProgress = false;
+      }
+      this.auxDialog.shown = true;
     },
     deleteFile: async function(file) {
       if (file.is_downloading) return;
@@ -215,15 +277,38 @@ export default {
       this.updateStorage(-file.size);
     },
     transformFile: function(file) {
-      file.expires_at = new Date(file.expires_at);
+      file.expires_at = file.expires_at ? new Date(file.expires_at) : null;
+      if (file.expires_at)
+        this.setRemovalTimer(file);
       file.created_at = new Date(file.created_at);
       file.updated_at = new Date(file.updated_at);
+      if (file.public_url)
+        file.public_url = this.buildProxyLink(file.public_url);
       this.$set(file, 'is_downloading', false);
       this.$set(file, 'download_progress', 0);
       this.$set(file, 'download_total', 0);
     },
+    setRemovalTimer: function(file) {
+      const eta = file.expires_at - new Date();
+      const timerId = setTimeout(() => {
+        if (this.files.includes(file))
+        {
+          this.removeFileFromView(file);
+          this.error.text = `Removed file ${file.name}: expired`;
+          this.error.shown = true;
+        }
+      }, eta);
+      this.timers.push(timerId);
+    },
     transformFolder: function(folder) {
       folder.created_at = new Date(folder.created_at);
+    },
+    buildProxyLink: function(publicLink) {
+      // Depends on current link format
+      const uuid = publicLink.split('/').pop();
+      const targetRoute = this.$router.resolve(`/download/${uuid}`);
+      const host = `${window.location.protocol}//${window.location.host}`;
+      return `${host}/${targetRoute.href}`;
     },
     loadData: async function(folderId) {
       if (folderId !== '-1') {
@@ -252,6 +337,9 @@ export default {
       this.files.forEach(this.transformFile);
       this.folders.forEach(this.transformFolder);
       this.loaded = true;
+    },
+    clearTimers: function() {
+      this.timers.forEach((timer) => clearTimeout(timer));
     }
   },
   components: {
@@ -260,17 +348,27 @@ export default {
     FloatingControls,
     FileUploadDialog,
     PreloadListView,
+    PreloadGridView,
+    FileGridView,
     FileListView
   },
   beforeMount: async function () {
+    if (this.authStore.user.preferredFileLayout)
+      this.viewMode = this.authStore.user.preferredFileLayout.value;
     await this.loadData(this.folderId);
   },
   beforeRouteUpdate: async function(to, from, next) {
     if (to.name === from.name && to.params.folderId !== from.params.folderId){
+      this.clearTimers();
       await this.loadData(to.params.folderId ?? "-1");
       next();
     }
     else next();
+  },
+  beforeRouteLeave(to, from, next) {
+    if (to.name !== from.name)
+      this.clearTimers();
+    next();
   }
 }
 </script>

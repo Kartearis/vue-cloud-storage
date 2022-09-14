@@ -9,9 +9,9 @@
           alt="Vue logo"
           class="shrink mr-2"
           contain
-          :src="require('../assets/logo.png')"
+          :src="require('../assets/logo.svg')"
           transition="scale-transition"
-          width="40"
+          width="35"
       />
 
       <v-toolbar-title class="text-h6 text-md-h4 text-xl-h3">Vue cloud storage</v-toolbar-title>

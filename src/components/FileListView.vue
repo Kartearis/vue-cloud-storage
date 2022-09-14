@@ -36,6 +36,7 @@
 <script>
 import NoFilesCard from "@/components/NoFilesCard";
 import FileListItem from "@/components/FileListItem";
+import FileLayoutMixin from "@/mixins/fileLayoutMixin";
 
 // v-on="$listeners" could be replaced with global state if more cases like this arise
 export default {
@@ -44,31 +45,7 @@ export default {
     NoFilesCard,
     FileListItem
   },
-  data: () => ({
-    selection: {
-      folder: null,
-      file: null
-    }
-  }),
-  props: {
-    files: Array,
-    folders: Array
-  },
-  methods: {
-    updateSelection: function(key, value) {
-      Object.keys(this.selection)
-        .filter((k) => k !== key)
-        .forEach((k) => this.selection[k] = null);
-      this.selection[key] = value;
-      if (key === 'folder' && value !== undefined) {
-        this.$emit('open_folder', this.folders[this.selection[key]]);
-        this.selection[key] = null;
-      }
-    }
-  },
-  beforeRouteUpdate() {
-    console.log("Updating");
-  }
+  mixins: [FileLayoutMixin]
 }
 </script>
 

@@ -5,6 +5,7 @@ import AuthView from "@/views/AuthView";
 import RegisterView from "@/views/RegisterView";
 
 import {useAuthStore} from "@/store/authStore";
+import PublicDownloadView from "@/views/PublicDownloadView";
 
 Vue.use(VueRouter)
 
@@ -26,6 +27,12 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+  },
+  {
+    path: '/download/:uuid',
+    name: 'Public download',
+    component: PublicDownloadView,
+    props: true
   },
   {
     path: '/:folderId?',

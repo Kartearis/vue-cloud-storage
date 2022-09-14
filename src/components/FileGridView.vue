@@ -1,0 +1,68 @@
+<template>
+  <no-files-card class="ma-5" v-if="!(files && files.length > 0) && !(folders && folders.length > 0)"
+                 v-on="$listeners"
+  >
+  </no-files-card>
+  <div v-else class="file-grid-view">
+    <file-grid-item
+        v-for="(folder, index) of folders" :key="folder.id"
+        :file="folder"
+        :type="'folder'"
+        :selected="selection.folder === index"
+        v-on="$listeners"
+        @click="updateSelection('folder', index)"
+    >
+    </file-grid-item>
+    <file-grid-item
+        v-for="(file, index) of files"
+        :key="file.id"
+        :file="file"
+        v-on="$listeners"
+        :selected="selection.folder === index"
+        @click="updateSelection('file', index)"
+    >
+    </file-grid-item>
+  </div>
+</template>
+
+<script>
+import FileGridItem from "@/components/FileGridItem";
+import NoFilesCard from "@/components/NoFilesCard";
+import fileLayoutMixin from "@/mixins/fileLayoutMixin";
+export default {
+  name: "FileGridView",
+  mixins: [fileLayoutMixin],
+  components: {
+    FileGridItem,
+    NoFilesCard
+  }
+}
+</script>
+
+<style scoped>
+  .file-grid-view {
+    --columns: 1;
+    display: grid;
+    grid-template-columns: repeat(var(--columns), 1fr);
+    gap: 32px;
+    padding-top: 16px;
+  }
+  
+  @media (min-width: 600px) {
+    .file-grid-view {
+      --columns: 2;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .file-grid-view {
+      --columns: 3;
+    }
+  }
+
+  @media (min-width: 1264px) {
+    .file-grid-view {
+      --columns: 4;
+    }
+  }
+</style>

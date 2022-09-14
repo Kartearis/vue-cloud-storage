@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import createPinia from "@/controllers/piniaSingleton";
 import UserRequestController from "@/controllers/userRequestController";
+import Vue from "vue";
 // import router from "@/router";
 
 const pinia = createPinia();
@@ -66,6 +67,10 @@ const getDefaultUserData = () => ({
     token: {
         displayable: false,
         value: null
+    },
+    preferredFileLayout: {
+        displayable: false,
+        value: 0
     }
 });
 
@@ -191,6 +196,21 @@ export const useAuthStore = defineStore('auth', {
          */
         updateStorageTaken(amount) {
             this.user.storageInUse.value += amount;
+        },
+
+        /**
+         * Saves preferred layout of files (grid/list) to storage, creating field if required
+         *
+         * @param {number} layoutIndex
+         */
+        setPreferredFileLayout(layoutIndex) {
+            if (this.user.preferredFileLayout)
+                this.user.preferredFileLayout.value = layoutIndex;
+            else {
+                const layoutData = getDefaultUserData().preferredFileLayout;
+                layoutData.value = layoutIndex;
+                Vue.set(this.user, 'preferredFileLayout', layoutData);
+            }
         }
     },
 });
