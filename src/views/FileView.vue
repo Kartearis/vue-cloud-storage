@@ -151,6 +151,7 @@ export default {
     ],
     files: [],
     folders: [],
+    timers: []
   }),
   computed: {
     selectedViewLayout: function() {
@@ -276,7 +277,9 @@ export default {
       this.updateStorage(-file.size);
     },
     transformFile: function(file) {
-      file.expires_at = new Date(file.expires_at);
+      file.expires_at = file.expires_at ? new Date(file.expires_at) : null;
+      if (file.expires_at)
+        this.setRemovalTimer(file);
       file.created_at = new Date(file.created_at);
       file.updated_at = new Date(file.updated_at);
       if (file.public_url)
@@ -284,6 +287,18 @@ export default {
       this.$set(file, 'is_downloading', false);
       this.$set(file, 'download_progress', 0);
       this.$set(file, 'download_total', 0);
+    },
+    setRemovalTimer: function(file) {
+      const eta = file.expires_at - new Date();
+      const timerId = setTimeout(() => {
+        if (this.files.includes(file))
+        {
+          this.removeFileFromView(file);
+          this.error.text = `Removed file ${file.name}: expired`;
+          this.error.shown = true;
+        }
+      }, eta);
+      this.timers.push(timerId);
     },
     transformFolder: function(folder) {
       folder.created_at = new Date(folder.created_at);
@@ -322,6 +337,9 @@ export default {
       this.files.forEach(this.transformFile);
       this.folders.forEach(this.transformFolder);
       this.loaded = true;
+    },
+    clearTimers: function() {
+      this.timers.forEach((timer) => clearTimeout(timer));
     }
   },
   components: {
@@ -341,10 +359,16 @@ export default {
   },
   beforeRouteUpdate: async function(to, from, next) {
     if (to.name === from.name && to.params.folderId !== from.params.folderId){
+      this.clearTimers();
       await this.loadData(to.params.folderId ?? "-1");
       next();
     }
     else next();
+  },
+  beforeRouteLeave(to, from, next) {
+    if (to.name !== from.name)
+      this.clearTimers();
+    next();
   }
 }
 </script>

@@ -15,6 +15,12 @@
       >
         Public
       </v-chip>
+      <v-chip v-if="file.expires_at"
+              color="warning"
+              x-small
+      >
+        Temp
+      </v-chip>
     </v-card-title>
     <v-card-text v-if="!file.is_downloading" class="file-grid-item__text">
       {{ date }}
@@ -87,7 +93,10 @@ export default {
 
   .file-grid-item__title {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
   }
 
   .file-grid-item__text {

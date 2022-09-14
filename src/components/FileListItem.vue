@@ -12,6 +12,12 @@
           >
             Public
           </v-chip>
+          <v-chip v-if="file.expires_at"
+                  color="warning"
+                  x-small
+          >
+            Temp
+          </v-chip>
         </v-list-item-title>
       <v-list-item-subtitle v-if="!file.is_downloading">
         {{ date }}
