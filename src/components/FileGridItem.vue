@@ -8,19 +8,21 @@
     </v-icon>
     <v-card-title class="file-grid-item__title">
       {{shortenedName}}
-      <v-chip
-        v-if="file.public_url"
-        color="primary"
-        x-small
-      >
-        Public
-      </v-chip>
-      <v-chip v-if="file.expires_at"
-              color="warning"
-              x-small
-      >
-        Temp
-      </v-chip>
+      <v-chip-group>
+        <v-chip
+            v-if="file.public_url"
+            color="primary"
+            x-small
+        >
+          Public
+        </v-chip>
+        <v-chip v-if="file.expires_at"
+                color="warning"
+                x-small
+        >
+          Temp
+        </v-chip>
+      </v-chip-group>
     </v-card-title>
     <v-card-text v-if="!file.is_downloading" class="file-grid-item__text">
       {{ date }}
@@ -93,9 +95,8 @@ export default {
 
   .file-grid-item__title {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     gap: 5px;
   }
 
