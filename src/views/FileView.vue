@@ -18,10 +18,11 @@
             mdi-dots-grid
           </v-icon>
         </v-btn>
-      </v-btn-toggle>
-      <v-chip v-text="formattedFolderSize"></v-chip>
+      </v-btn-toggle >
+      <v-chip class="ml-4"
+          v-text="formattedFolderSize"></v-chip>
     </v-toolbar>
-    <preload-list-view v-if="!loaded"></preload-list-view>
+    <component v-bind:is="selectedPreload" v-if="!loaded"></component>
     <component v-bind:is="selectedViewLayout"
         v-else
         :files="files"
@@ -88,6 +89,7 @@ import FileListView from "@/components/FileListView";
 import FileGridView from "@/components/FileGridView";
 import {useAuthStore, fileSizeFormatter} from "@/store/authStore";
 import PreloadListView from "@/components/PreloadListView";
+import PreloadGridView from "@/components/PreloadGridView";
 import FileUploadDialog from "@/components/FileUploadDialog";
 import FloatingControls from "@/components/FloatingControls";
 import FolderCreationDialog from "@/components/FolderCreationDialog";
@@ -155,6 +157,10 @@ export default {
       const layouts = ['FileListView', 'FileGridView'];
       this.authStore.setPreferredFileLayout(this.viewMode);
       return layouts[this.viewMode];
+    },
+    selectedPreload: function() {
+      const preloads = ['PreloadListView', 'PreloadGridView'];
+      return preloads[this.viewMode];
     },
     formattedFolderSize: function() {
       return fileSizeFormatter(this.currentFolder.size);
@@ -325,6 +331,7 @@ export default {
     FloatingControls,
     FileUploadDialog,
     PreloadListView,
+    PreloadGridView,
     FileGridView,
     FileListView
   },
