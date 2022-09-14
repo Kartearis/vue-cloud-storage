@@ -307,8 +307,8 @@ export default {
       // Depends on current link format
       const uuid = publicLink.split('/').pop();
       const targetRoute = this.$router.resolve(`/download/${uuid}`);
-      const host = `${window.location.protocol}//${window.location.host}`;
-      return `${host}/${targetRoute.href}`;
+      const host = `${window.location.origin}${window.location.pathname}`;
+      return `${host}${targetRoute.href}`;
     },
     loadData: async function(folderId) {
       if (folderId !== '-1') {
