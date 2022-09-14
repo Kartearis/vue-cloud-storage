@@ -180,7 +180,6 @@ export default {
       this.auxDialog.onShow = undefined;
       this.auxDialog.title = "Rename file";
       this.auxDialog.action = async (newName, alerts, closeDialog) => {
-        console.log(newName);
         try {
           const result = await this.authStore.userRequestController.renameFile(file.id, newName);
           file.name = result.name;
