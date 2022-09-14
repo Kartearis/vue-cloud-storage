@@ -153,6 +153,7 @@ export default {
   computed: {
     selectedViewLayout: function() {
       const layouts = ['FileListView', 'FileGridView'];
+      this.authStore.setPreferredFileLayout(this.viewMode);
       return layouts[this.viewMode];
     },
     formattedFolderSize: function() {
@@ -328,6 +329,8 @@ export default {
     FileListView
   },
   beforeMount: async function () {
+    if (this.authStore.user.preferredFileLayout)
+      this.viewMode = this.authStore.user.preferredFileLayout.value;
     await this.loadData(this.folderId);
   },
   beforeRouteUpdate: async function(to, from, next) {
