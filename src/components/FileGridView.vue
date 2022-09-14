@@ -5,17 +5,21 @@
   </no-files-card>
   <div v-else class="file-grid-view">
     <file-grid-item
-        v-for="folder of folders" :key="folder.id"
+        v-for="(folder, index) of folders" :key="folder.id"
         :file="folder"
         :type="'folder'"
+        :selected="selection.folder === index"
         v-on="$listeners"
+        @click="updateSelection('folder', index)"
     >
     </file-grid-item>
     <file-grid-item
-        v-for="file of files"
+        v-for="(file, index) of files"
         :key="file.id"
         :file="file"
         v-on="$listeners"
+        :selected="selection.folder === index"
+        @click="updateSelection('file', index)"
     >
     </file-grid-item>
   </div>

@@ -1,5 +1,8 @@
 <template>
-  <v-card class="file-grid-item">
+  <v-card
+      class="file-grid-item"
+      @click="$emit('click')"
+  >
     <v-icon size="100">
       {{ fileType.icon }}
     </v-icon>
